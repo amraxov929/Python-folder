@@ -1,0 +1,16 @@
+import time
+
+def saniyeolcen():
+    input("Başlatmaq üçün ENTER düyməsini sıxın...")
+    baslangic = time.time()
+    print("Saniyəölçən başladı... Dayandırmaq üçün CTRL+C sıxın.")
+    
+    try:
+        while True:
+            kecen_zaman = round(time.time() - baslangic, 2)
+            print(f"\rKeçən zaman: {kecen_zaman} saniyə", end="")
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print(f"\n\n⏱️ Cəmi zaman: {round(time.time() - baslangic, 2)} saniyə.")
+
+saniyeolcen()

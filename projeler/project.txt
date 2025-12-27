@@ -1,0 +1,408 @@
+from tkinter import *
+from tkinter import messagebox
+
+window = Tk()
+window.title("passs oil")
+window.attributes("-fullscreen" , True)
+window.configure(bg = "pink")
+
+label1 = Label(text = "ARSENAL OIL",
+               bg = "deepskyblue",
+               font = ("Arial", 30, "normal"))
+label1.pack()
+
+label2 = Label(text = "Welcome",
+               bg = "blue",
+               font = ("Arial", 30, "normal")).pack() 
+
+
+
+
+class Petrols:
+            def __init__(self, name, price, quantity):
+                      self.name = name
+                      self.price = price
+                      self.quantity = quantity
+        
+            def showInfo(self):
+                    print("Name : ", self.name)
+                    print("Price : ", self.price)
+                    print("Quantity : ", self.quantity)
+        
+benzin = Petrols('Benzin', 1, 5)
+AI92 = Petrols("AI 92", 2, 5)
+AI95 = Petrols("AI 95", 3, 5)
+
+petrols = [benzin, AI92, AI95]
+
+class Mehsul:
+     def __init__(self, name, price, quantity):
+               self.name = name
+               self.price = price
+               self.quantity = quantity
+
+     def showInfo(self):
+             print("Name : ", self.name)
+             print("Price : ", self.price)
+             print("Quantity : ", self.quantity)
+
+Cola = Mehsul('Cola', 1, 5)
+Cipsi = Mehsul("Cipsi", 2, 5)
+Keks = Mehsul("Keks", 3, 5)
+
+Mehsullar = [Cola, Cipsi, Keks]
+
+
+def afterLogin():
+        windowafterLogin = Tk()
+        windowafterLogin.attributes("-fullscreen" , True)
+        windowafterLogin.configure(bg = "pink")
+        label5 = Label(windowafterLogin,
+                       text = "Seciminizi edin",
+                       bg = "deepskyblue",
+                       font = ("Arial", 30, "normal")).pack()
+        
+        button4=Button(windowafterLogin,
+               text = "BACK",
+               bg = "purple",
+               fg = "white",
+               font = ("Arial",15,"normal"),
+               command = windowafterLogin.destroy) 
+    
+        button4.pack()
+        button4.place(height=30,x=1450,y=10)
+        
+     
+        
+        
+       
+        def admin_Market_Page():
+            admin_Market = Tk()  
+            admin_Market.minsize(700,600)
+            label1 = Label(admin_Market , text = "Deyisikliklerinizi edin" , bg = "deepskyblue" , font = ("Arial" , 25 , "normal"))
+            label1.pack()
+           
+           
+            def add_Mehsul():
+                   name = newMehsulName.get()
+                   price = newMehsulPrice.get()
+                   quantity = newMehsulQuantity.get()
+                   petrol = Mehsul(name, price, quantity)
+                   Mehsullar.append(petrol)
+                   update_display()
+
+
+            def remove_mehsul():
+                   selected = mehsul_listbox.curselection()
+                   if selected:
+                       index = selected[0]
+                       del Mehsullar[index]
+                       update_display()
+
+            def update_display():
+                    mehsul_listbox.delete(0, END)
+                    for mehsul in Mehsullar:
+                           mehsul_listbox.insert(END, f"Name:{mehsul.name} - Price:{mehsul.price} - Quantity:{mehsul.quantity}")
+
+
+            mehsul_listbox = Listbox(admin_Market,
+                                   selectmode = MULTIPLE,
+                                   bg = "yellow",
+                                   font = ("Arial", 20, "normal"))
+            mehsul_listbox.pack()
+            mehsul_listbox.configure(width=30, height=10)
+            update_display()
+       
+            name_label = Label(admin_Market, text="Name").place(x=650, y=385)
+            price_label = Label(admin_Market, text="Price").place(x=650, y=402)
+            quantity_label = Label(admin_Market, text="Quantity").place(x=650, y=419)
+
+            newMehsulName = Entry(admin_Market)
+            newMehsulName.pack()
+
+            newMehsulPrice = Entry(admin_Market)
+            newMehsulPrice.pack()
+
+            newMehsulQuantity = Entry(admin_Market)
+            newMehsulQuantity.pack()
+
+       
+            add_Button = Button(admin_Market, text="Add Mehsul", command=add_Mehsul)
+            add_Button.pack()
+
+            remove_Button = Button(admin_Market, text="Remove Selected", command=remove_mehsul)
+            remove_Button.pack()    
+  
+        def newYanacaqPage():
+            yanacaqPage = Tk()
+            yanacaqPage.minsize(700,600)
+            label = Label(yanacaqPage , text = "Deyisikliklerinizi edin" , bg = "deepskyblue" , font = ("Arial" , 25 , "normal"))
+            label.pack()
+           
+            def add_petrol():
+                  name = newPetrolName.get()
+                  price = newPetrolPrice.get()
+                  quantity = newPetrolQuantity.get()
+                  petrol = Petrols(name, price, quantity)
+                  petrols.append(petrol)
+                  update_display()
+  
+
+            def remove_petrol():
+                  selected = petrol_listbox.curselection()
+                  if selected:
+                      index = selected[0]
+                      del petrols[index]
+                      update_display()
+  
+            def update_display():
+                   petrol_listbox.delete(0, END)
+                   for petrol in petrols:
+                          petrol_listbox.insert(END, f"{petrol.name} - {petrol.price} - {petrol.quantity}")
+  
+  
+            petrol_listbox = Listbox(yanacaqPage,
+                                  selectmode = MULTIPLE,
+                                  bg = "yellow",
+                                  font = ("Arial", 20, "normal"))
+            petrol_listbox.pack()
+            update_display()
+  
+            name_label = Label(yanacaqPage, text="Name").place(x=650, y=382)
+            price_label = Label(yanacaqPage, text="Price").place(x=650, y=400)
+            quantity_label = Label(yanacaqPage, text="Quantity").place(x=650, y=416)
+  
+            newPetrolName = Entry(yanacaqPage)
+            newPetrolName.pack()
+  
+            newPetrolPrice = Entry(yanacaqPage)
+            newPetrolPrice.pack()
+  
+            newPetrolQuantity = Entry(yanacaqPage)
+            newPetrolQuantity.pack()
+            
+            addButton = Button(yanacaqPage, text="Add Petrol", command=add_petrol)
+            addButton.pack()
+  
+            removeButton = Button(yanacaqPage, text="Remove Selected", command=remove_petrol)
+            removeButton.pack()
+  
+  
+
+          
+        button1 = Button(windowafterLogin,
+                   text = "Yanacaq",
+                   bg = "white",
+                   command=newYanacaqPage,
+                   font = ("Arial",30,"normal"))
+        button1.place(x = 900 , y = 400)
+
+        button2 = Button(windowafterLogin,
+                        text = "Market",
+                        bg = "white",
+                        command = admin_Market_Page,
+                        font = ("Arial",30,"normal"))
+        button2.place(x = 500 , y = 400)
+
+
+        
+          
+
+def openNewWindowUser():
+    secim_penceresi = Tk()
+    secim_penceresi.minsize(1500,1300)
+    secim_penceresi.configure(bg = "pink")
+    label = Label(secim_penceresi,text = "Select the window you want to buy",bg = "deepskyblue",font = ("Arial" , 25 , "normal"))
+    label.pack()
+    
+    
+    def show_buy_mehsul():
+        mehsulwindow = Tk()  
+        mehsulwindow.minsize(1500,1300)
+
+        new_mehsul_listbox = Listbox(mehsulwindow,
+                                    
+                                     selectmode = MULTIPLE,
+                                     bg = "pink",
+                                     font = ("Arial", 20, "normal"))
+        new_mehsul_listbox.pack()
+
+        new_mehsul_listbox.configure(width=30, height=10)
+
+        for mehsul in Mehsullar:
+             new_mehsul_listbox.insert(END, f"Name:{mehsul.name} - Price:{mehsul.price} - Quantity:{mehsul.quantity}")        
+
+
+        def buy_mehsul():
+                name = entry_name.get()
+                price = entry_price.get()
+                for i, mehsul in enumerate(Mehsullar):
+                    if mehsul.name == name and str(mehsul.price) == price:                 
+                        del Mehsullar[i]
+                        new_mehsul_listbox.delete(i)
+                        messagebox.showinfo("Success", f"Successfully bought {name} at price {price}")
+                        return
+                messagebox.showerror("Error", f"Mehsul with name {name} and price {price} not found")
+                
+        entry_name = Entry(mehsulwindow)
+        entry_name.pack()
+        entry_price = Entry(mehsulwindow)
+        entry_price.pack()
+
+        label1 = Label(mehsulwindow, text = "Name").place(x = 650 , y = 335 )
+        label2 = Label(mehsulwindow, text = "Price").place(x = 650 , y = 351)
+        buy_button = Button(mehsulwindow, text="Buy", bg="green", font=("Arial", 20, "normal"), command=buy_mehsul)
+        buy_button.pack()
+
+
+
+        class Mehsul:
+            def __init__(self, name, price, quantity):
+                self.name = name
+                self.price = price
+                self.quantity = quantity
+
+    market_Button = Button(secim_penceresi , text = "Market" , cursor = "hand2",command = show_buy_mehsul , font = ("Arial" , 25 , "normal"))
+    market_Button.place(x = 500 , y = 400)
+    
+
+
+    def show_buy_yanacaq():
+         userwindow = Tk()
+         userwindow.minsize(1500,1300)
+    
+         new_petrol_listbox = Listbox(userwindow,
+                                      selectmode = MULTIPLE,
+                                      bg = "pink",
+                                      font = ("Arial", 20, "normal"))
+         new_petrol_listbox.pack()
+     
+         for petrol in petrols:
+              new_petrol_listbox.insert(END, f"{petrol.name} - {petrol.price} - {petrol.quantity}")        
+     
+     
+         def buy_petrol():
+                 name = entry_name.get()
+                 price = entry_price.get()          
+                 for i, petrol in enumerate(petrols):
+                     if petrol.name == name and str(petrol.price) == price:              
+                         del petrols[i]
+                         new_petrol_listbox.delete(i)
+                         messagebox.showinfo("Success", f"Successfully bought {name} at price {price}")
+                         return
+                 messagebox.showerror("Error", f"Petrol with name {name} and price {price} not found")
+
+        
+         entry_name = Entry(userwindow)
+         entry_name.pack()
+         entry_price = Entry(userwindow)
+         entry_price.pack()
+
+         label1 = Label(userwindow, text = "Name").place(x = 650 , y = 335 )
+         label2 = Label(userwindow, text = "Price").place(x = 650 , y = 351)
+         buy_button = Button(userwindow, text="Buy", bg="green", font=("Arial", 20, "normal"), command=buy_petrol)
+         buy_button.pack()
+
+    
+
+         class Petrol:
+             def __init__(self, name, price, quantity):
+                 self.name = name
+                 self.price = price
+                 self.quantity = quantity
+                 
+    yanacaq_Button = Button(secim_penceresi , text = "Yanacaq" , cursor = "hand2",command = show_buy_yanacaq , font = ("Arial" , 25 , "normal"))
+    yanacaq_Button.place(x = 900 , y = 400)
+      
+
+
+def openNewWindowAdmin():
+    newWindow = Toplevel(window)
+    newWindow.title("Admin Window")
+    newWindow.attributes("-fullscreen" , True)
+    newWindow.configure(bg = "pink")
+    
+    button4=Button(newWindow,
+               text = "BACK",
+               bg = "purple",
+               fg = "white",
+               font = ("Arial",15,"normal"),
+               command = newWindow.destroy) 
+    
+    button4.pack()
+    button4.place(height=30,x=1450,y=10)
+    
+    def login():
+        username = "a"
+        correctUsername = entry1.get()
+        password = "a"
+        correctPassword = entry2.get()
+        if correctUsername == username and correctPassword == password:
+             messagebox.showinfo("Success", "Login successfully")
+             afterLogin()
+        else:
+             messagebox.showerror("Error", "Sifre veya kullanici adi hatali")
+
+            
+    entry1 = Entry(newWindow, width = 20)
+    entry1.place(x=600, y=100)
+
+    entry2 = Entry(newWindow,show = '*',
+                   width = 20)
+                   
+    entry2.place(x=600, y=170)
+
+
+    button1 = Button(newWindow,
+                 text = "submit",
+                 activebackground = "pink",
+                 activeforeground = "blue",
+                 cursor = "hand2",
+                 command = login)
+    button1.place(x=600, y=235)
+
+
+    unameLabel = Label(newWindow, text="username").place(x=528, y=100)
+    
+    
+    passwordLabel = Label(newWindow, text="password:").place(x=528, y=170)
+    
+
+
+
+
+button4=Button(window,
+               text = "BACK",
+               bg = "purple",
+               fg = "white",
+               cursor = "hand2",
+               font = ("Arial" , 15 , "normal"),
+               command = window.destroy)
+button4.pack()
+button4.place(height=30,x=1450,y=10)
+
+
+
+
+button2 = Button(window,
+                 text = "User",
+                 fg = "black",
+                 cursor = "hand2",
+                 command = openNewWindowUser,
+                 font = ("Arial", 35, "normal"))
+button2.place(x=830, y=385)
+
+
+
+button3 = Button(window,
+                 text = "Admin",
+                 fg = "black",
+                 cursor = "hand2",
+                 font = ("Arial", 35, "normal"),
+                 command = openNewWindowAdmin)
+button3.place(x=495, y=385)
+
+
+
+window.mainloop()
+

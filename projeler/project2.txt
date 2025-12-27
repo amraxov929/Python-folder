@@ -1,0 +1,199 @@
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+import json
+import os
+from datetime import datetime
+
+class TapşırıqProqramı:
+    def __init__(self, pencere):
+        self.pencere = pencere
+        self.pencere.title("Gabaqcıl Tapşırıq İdarəetmə Sistemi v1.0")
+        self.pencere.geometry("900x700")
+        self.pencere.configure(bg="#f0f0f0")
+
+        self.fayl_adi = "tapsiriqlar.json"
+        self.tapsiriqlar = self.melumati_yukle()
+
+        self.stil = ttk.Style()
+        self.stil.theme_use("clam")
+        self.stil.configure("TLabel", background="#f0f0f0", font=("Segoe UI", 10))
+        self.stil.configure("TButton", font=("Segoe UI", 10, "bold"))
+        self.stil.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground="#2c3e50")
+
+        self.arayuzu_qur()
+
+    def melumati_yukle(self):
+        """Fayldan məlumatları oxuyur."""
+        if os.path.exists(self.fayl_adi):
+            try:
+                with open(self.fayl_adi, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except:
+                return []
+        return []
+
+    def melumati_yadda_saxla(self):
+        """Məlumatları JSON faylına yazır."""
+        try:
+            with open(self.fayl_adi, "w", encoding="utf-8") as f:
+                json.dump(self.tapsiriqlar, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            messagebox.showerror("Xəta", f"Məlumat saxlanıla bilmədi: {e}")
+
+    def arayuzu_qur(self):
+        """Bütün GUI elementlərini yaradır."""
+        ust_cerceve = tk.Frame(self.pencere, bg="#34495e", height=80)
+        ust_cerceve.pack(fill=tk.X)
+        
+        basliq = tk.Label(ust_cerceve, text="TAPŞIRIQ MENECERİ", bg="#34495e", fg="white", font=("Segoe UI", 20, "bold"))
+        basliq.pack(pady=20)
+
+        ana_cerceve = tk.Frame(self.pencere, bg="#f0f0f0")
+        ana_cerceve.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+        giriş_paneli = ttk.LabelFrame(ana_cerceve, text=" Yeni Tapşırıq Əlavə Et ")
+        giriş_paneli.pack(side=tk.LEFT, fill=tk.Y, padx=10)
+
+        ttk.Label(giriş_paneli, text="Tapşırıq Adı:").pack(pady=5, padx=10, anchor="w")
+        self.ad_giris = ttk.Entry(giriş_paneli, width=30)
+        self.ad_giris.pack(pady=5, padx=10)
+
+        ttk.Label(giriş_paneli, text="Kateqoriya:").pack(pady=5, padx=10, anchor="w")
+        self.kat_secim = ttk.Combobox(giriş_paneli, values=["İş", "Şəxsi", "Təhsil", "Alış-veriş", "Digər"])
+        self.kat_secim.pack(pady=5, padx=10)
+        self.kat_secim.current(0)
+
+        ttk.Label(giriş_paneli, text="Prioritet (Vaciblik):").pack(pady=5, padx=10, anchor="w")
+        self.prioritet = ttk.Scale(giriş_paneli, from_=1, to=5, orient=tk.HORIZONTAL)
+        self.prioritet.pack(pady=5, padx=10, fill=tk.X)
+
+        ttk.Label(giriş_paneli, text="Qeyd:").pack(pady=5, padx=10, anchor="w")
+        self.qeyd_metn = tk.Text(giriş_paneli, width=25, height=8, font=("Segoe UI", 9))
+        self.qeyd_metn.pack(pady=5, padx=10)
+
+        elave_et_btn = ttk.Button(giriş_paneli, text="Əlavə Et", command=self.tapsiriq_elave_et)
+        elave_et_btn.pack(pady=20, padx=10, fill=tk.X)
+
+        siyahi_paneli = ttk.LabelFrame(ana_cerceve, text=" Mövcud Tapşırıqlar ")
+        siyahi_paneli.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10)
+
+        sutunlar = ("id", "ad", "kateqoriya", "tarix", "prioritet")
+        self.cedvel = ttk.Treeview(siyahi_paneli, columns=sutunlar, show="headings")
+        
+        self.cedvel.heading("id", text="ID")
+        self.cedvel.heading("ad", text="Tapşırıq")
+        self.cedvel.heading("kateqoriya", text="Növ")
+        self.cedvel.heading("tarix", text="Tarix")
+        self.cedvel.heading("prioritet", text="P")
+
+        self.cedvel.column("id", width=30)
+        self.cedvel.column("ad", width=150)
+        self.cedvel.column("kateqoriya", width=80)
+        self.cedvel.column("tarix", width=120)
+        self.cedvel.column("prioritet", width=30)
+        
+        self.cedvel.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        duyme_paneli = tk.Frame(siyahi_paneli, bg="#f0f0f0")
+        duyme_paneli.pack(fill=tk.X, pady=10)
+
+        ttk.Button(duyme_paneli, text="Sil", command=self.tapsiriq_sil).pack(side=tk.LEFT, padx=5)
+        ttk.Button(duyme_paneli, text="Tamamlandı", command=self.tamamla).pack(side=tk.LEFT, padx=5)
+        ttk.Button(duyme_paneli, text="Hamısını Təmizlə", command=self.her_seyi_sil).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(duyme_paneli, text="Haqqında", command=self.haqqinda).pack(side=tk.RIGHT, padx=5)
+
+        self.siyahini_yenile()
+
+    def tapsiriq_elave_et(self):
+        ad = self.ad_giris.get().strip()
+        kat = self.kat_secim.get()
+        pri = int(self.prioritet.get())
+        qeyd = self.qeyd_metn.get("1.0", tk.END).strip()
+        tarix = datetime.now().strftime("%d.%m.%Y %H:%M")
+
+        if not ad:
+            messagebox.showwarning("Xəta", "Zəhmət olmasa tapşırıq adını daxil edin!")
+            return
+
+        yeni = {
+            "id": len(self.tapsiriqlar) + 1,
+            "ad": ad,
+            "kateqoriya": kat,
+            "prioritet": pri,
+            "qeyd": qeyd,
+            "tarix": tarix,
+            "status": "Aktiv"
+        }
+
+        self.tapsiriqlar.append(yeni)
+        self.melumati_yadda_saxla()
+        self.siyahini_yenile()
+        self.temizle()
+        messagebox.showinfo("Uğurlu", "Tapşırıq uğurla əlavə edildi!")
+
+    def siyahini_yenile(self):
+        """Cədvəli təmizləyir və yenidən doldurur."""
+        for i in self.cedvel.get_children():
+            self.cedvel.delete(i)
+        
+        for t in self.tapsiriqlar:
+            self.cedvel.insert("", tk.END, values=(t["id"], t["ad"], t["kateqoriya"], t["tarix"], t["prioritet"]))
+
+    def tapsiriq_sil(self):
+        secilmis = self.cedvel.selection()
+        if not secilmis:
+            messagebox.showwarning("Xəta", "Silmək üçün tapşırıq seçin!")
+            return
+        
+        if messagebox.askyesno("Təsdiq", "Bu tapşırığı silmək istədiyinizə əminsiniz?"):
+            for s in secilmis:
+                item = self.cedvel.item(s)
+                t_id = item["values"][0]
+                self.tapsiriqlar = [t for t in self.tapsiriqlar if t["id"] != t_id]
+            
+            self.melumati_yadda_saxla()
+            self.siyahini_yenile()
+
+    def tamamla(self):
+        secilmis = self.cedvel.selection()
+        if secilmis:
+            messagebox.showinfo("Məlumat", "Tapşırıq tamamlanmış kimi qeyd edildi!")
+        else:
+            messagebox.showwarning("Xəta", "Tapşırıq seçilməyib!")
+
+    def her_seyi_sil(self):
+        if messagebox.askyesno("Ciddi Xəbərdarlıq", "Bütün siyahını silmək istəyirsiniz?"):
+            self.tapsiriqlar = []
+            self.melumati_yadda_saxla()
+            self.siyahini_yenile()
+
+    def temizle(self):
+        self.ad_giris.delete(0, tk.END)
+        self.qeyd_metn.delete("1.0", tk.END)
+        self.kat_secim.current(0)
+        self.prioritet.set(1)
+
+    def haqqinda(self):
+        messagebox.showinfo("Proqram Haqqında", "Azerbaycan Dilində Tapşırıq Meneceri\nVersiya: 1.0\nPython & Tkinter ilə hazırlanmışdır.")
+
+if __name__ == "__main__":
+    kok_pencere = tk.Tk()
+    tapsiriq_app = TapşırıqProqramı(kok_pencere)
+    
+    status_bar = tk.Label(kok_pencere, text="Hazırdır", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+    status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+
+    menyu_cubugu = tk.Menu(kok_pencere)
+    kok_pencere.config(menu=menyu_cubugu)
+
+    fayl_menyusu = tk.Menu(menyu_cubugu, tearoff=0)
+    menyu_cubugu.add_cascade(label="Fayl", menu=fayl_menyusu)
+    fayl_menyusu.add_command(label="Yadda Saxla", command=tapsiriq_app.melumati_yadda_saxla)
+    fayl_menyusu.add_separator()
+    fayl_menyusu.add_command(label="Çıxış", command=kok_pencere.quit)
+
+    tənzimləmə_menyusu = tk.Menu(menyu_cubugu, tearoff=0)
+    menyu_cubugu.add_cascade(label="Tənzimləmələr", menu=tənzimləmə_menyusu)
+    tənzimləmə_menyusu.add_command(label="Rəngi Dəyiş")
+    tənzimləmə_menyusu.add_command(label="Dili Dəyiş")
+    kok_pencere.mainloop()

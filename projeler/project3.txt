@@ -1,0 +1,163 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+import os
+import random
+import string
+import webbrowser
+
+class PasswordManager:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("SecurePass - Ваш менеджер паролей")
+        self.root.geometry("650x550")
+        self.root.configure(bg="#2c3e50")
+
+        self.file_path = "passwords_vault.json"
+        self.data = self.load_data()
+
+        self.setup_ui()
+
+    def load_data(self):
+        """Загрузка данных из JSON файла."""
+        if os.path.exists(self.file_path):
+            try:
+                with open(self.file_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except:
+                return {}
+        return {}
+
+    def save_data(self):
+        """Сохранение данных в JSON файл."""
+        try:
+            with open(self.file_path, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось сохранить данные: {e}")
+
+    def setup_ui(self):
+        """Создание графического интерфейса."""
+        header = tk.Label(
+            self.root, text="ХРАНИЛИЩЕ ПАРОЛЕЙ", 
+            font=("Arial", 18, "bold"), bg="#2c3e50", fg="#ecf0f1", pady=20
+        )
+        header.pack()
+
+        main_frame = tk.Frame(self.root, bg="#2c3e50")
+        main_frame.pack(padx=20, pady=10, fill="both", expand=True)
+
+        labels_font = ("Arial", 10, "bold")
+        
+        tk.Label(main_frame, text="Название ресурса (напр. Google):", bg="#2c3e50", fg="#bdc3c7", font=labels_font).grid(row=0, column=0, sticky="w", pady=5)
+        self.entry_site = tk.Entry(main_frame, width=40)
+        self.entry_site.grid(row=1, column=0, columnspan=2, pady=5, ipady=3)
+
+        tk.Label(main_frame, text="Логин / Email:", bg="#2c3e50", fg="#bdc3c7", font=labels_font).grid(row=2, column=0, sticky="w", pady=5)
+        self.entry_user = tk.Entry(main_frame, width=40)
+        self.entry_user.grid(row=3, column=0, columnspan=2, pady=5, ipady=3)
+
+        tk.Label(main_frame, text="Пароль:", bg="#2c3e50", fg="#bdc3c7", font=labels_font).grid(row=4, column=0, sticky="w", pady=5)
+        self.entry_pass = tk.Entry(main_frame, width=40)
+        self.entry_pass.grid(row=5, column=0, pady=5, ipady=3)
+
+        btn_generate = tk.Button(main_frame, text="Сгенерировать", command=self.generate_password, bg="#3498db", fg="white", relief="flat")
+        btn_generate.grid(row=5, column=1, padx=5)
+
+        btn_add = tk.Button(main_frame, text="СОХРАНИТЬ ПАРОЛЬ", command=self.add_password, bg="#27ae60", fg="white", font=("Arial", 10, "bold"), width=35, pady=10)
+        btn_add.grid(row=6, column=0, columnspan=2, pady=20)
+
+        style = ttk.Style()
+        style.theme_use("clam")
+        
+        columns = ("site", "user", "password")
+        self.tree = ttk.Treeview(main_frame, columns=columns, show="headings", height=8)
+        self.tree.heading("site", text="Ресурс")
+        self.tree.heading("user", text="Логин")
+        self.tree.heading("password", text="Пароль")
+        
+        self.tree.column("site", width=150)
+        self.tree.column("user", width=150)
+        self.tree.column("password", width=150)
+        self.tree.grid(row=7, column=0, columnspan=2, pady=10)
+
+        bottom_frame = tk.Frame(self.root, bg="#2c3e50")
+        bottom_frame.pack(fill="x", padx=20, pady=10)
+
+        tk.Button(bottom_frame, text="Удалить выбранное", command=self.delete_password, bg="#e74c3c", fg="white").pack(side="left", padx=5)
+        tk.Button(bottom_frame, text="Копировать пароль", command=self.copy_password, bg="#f39c12", fg="white").pack(side="left", padx=5)
+        tk.Button(bottom_frame, text="О программе", command=self.about_app).pack(side="right", padx=5)
+
+        self.update_listbox()
+
+    def generate_password(self):
+        """Генерация надежного случайного пароля."""
+        chars = string.ascii_letters + string.digits + "!@#$%^&*"
+        pwd = "".join(random.sample(chars, 12))
+        self.entry_pass.delete(0, tk.END)
+        self.entry_pass.insert(0, pwd)
+
+    def add_password(self):
+        """Добавление нового пароля в базу."""
+        site = self.entry_site.get().strip()
+        user = self.entry_user.get().strip()
+        pwd = self.entry_pass.get().strip()
+
+        if not site or not user or not pwd:
+            messagebox.showwarning("Внимание", "Пожалуйста, заполните все поля!")
+            return
+
+        self.data[site] = {"user": user, "password": pwd}
+        self.save_data()
+        self.update_listbox()
+        self.clear_entries()
+        messagebox.showinfo("Успех", f"Пароль для {site} успешно сохранен!")
+
+    def update_listbox(self):
+        """Обновление таблицы на экране."""
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        for site, info in self.data.items():
+            self.tree.insert("", tk.END, values=(site, info["user"], info["password"]))
+
+    def delete_password(self):
+        """Удаление записи."""
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Ошибка", "Выберите запись для удаления")
+            return
+        
+        item_values = self.tree.item(selected_item)["values"]
+        site_to_delete = item_values[0]
+
+        if messagebox.askyesno("Подтверждение", f"Удалить пароль для {site_to_delete}?"):
+            if site_to_delete in self.data:
+                del self.data[site_to_delete]
+                self.save_data()
+                self.update_listbox()
+
+    def copy_password(self):
+        """Копирование пароля в буфер обмена."""
+        selected_item = self.tree.selection()
+        if selected_item:
+            pwd = self.tree.item(selected_item)["values"][2]
+            self.root.clipboard_clear()
+            self.root.clipboard_append(pwd)
+            messagebox.showinfo("Копирование", "Пароль скопирован в буфер обмена!")
+
+    def clear_entries(self):
+        self.entry_site.delete(0, tk.END)
+        self.entry_user.delete(0, tk.END)
+        self.entry_pass.delete(0, tk.END)
+
+    def about_app(self):
+        messagebox.showinfo("О программе", "SecurePass v1.0\nРазработано на Python (Tkinter)\n2025")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PasswordManager(root)
+    
+    status = tk.Label(root, text="Система готова к работе", bd=1, relief="sunken", anchor="w", bg="#34495e", fg="white")
+    status.pack(side="bottom", fill="x")
+    
+    root.mainloop()

@@ -1,0 +1,9 @@
+def email_yoxla(email):
+    if "@" in email and "." in email:
+        parts = email.split("@")
+        if len(parts) == 2 and "." in parts[1]:
+            return "✅ Bu düzgün email formatıdır."
+    return "❌ Səhv email formatı!"
+
+user_mail = input("Email ünvanınızı daxil edin: ")
+print(email_yoxla(user_mail))

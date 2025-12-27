@@ -1,0 +1,23 @@
+import random
+
+def reqemi_tap():
+    print("--- 🎯 Rəqəmi Tap Oyununa Xoş Gəldiniz! ---")
+    hedef = random.randint(1, 100)
+    cehd_sayi = 0
+    
+    while True:
+        try:
+            texmin = int(input("1 ilə 100 arasında bir rəqəm daxil edin: "))
+            cehd_sayi += 1
+            
+            if texmin < hedef:
+                print("Daha böyük bir rəqəm deyin... ⬆️")
+            elif texmin > hedef:
+                print("Daha kiçik bir rəqəm deyin... ⬇️")
+            else:
+                print(f"🎉 Təbriklər! {cehd_sayi} cəhddə düzgün tapdınız.")
+                break
+        except ValueError:
+            print("Zəhmət olmasa düzgün rəqəm daxil edin!")
+
+reqemi_tap()
